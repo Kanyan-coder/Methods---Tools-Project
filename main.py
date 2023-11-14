@@ -37,26 +37,26 @@ def main():
         print("0- Login")
         print("1- Create Account")
         print("2- Logout")
-        print("3- View accounts\n")
+        print("3- View account information\n")
       
         opt = input("What would you like to do?\n")
         
         if(opt == "0"):
             login(user)
-            print("\n")
+            print("")
 
         elif(opt == "1"):
             createAccount(user)
-            print("\n")
+            print("")
 
         elif(opt == "2"):
             logout(user)
-            print("\n")
+            print("")
             break
 
         elif(opt == "3"):
             user.viewAccountInformation()
-            print("\n")
+            print("")
 
         else:
             print("Invalid response. Try again\n")
