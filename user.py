@@ -18,42 +18,59 @@ class User:
         self.connection.close()
 
     #Login function
-    #Problem: Error if userID entered is not in database
-    #Potential Fix: use conditional to confirm presence of username prior to retrieving password
     def login(self):
         userID = input("Please enter your userID... ")
-        pswrd = input("Please enter your password... ")
-        self.cursor.execute("SELECT Password FROM Users WHERE UserID =?", [userID])
+        self.cursor.execute("SELECT COUNT(UserID) FROM Users WHERE UserID =?", [userID])
         result = self.cursor.fetchall()
-        corr = result[0][0]
-        if(corr == paswrd):
-            self.loggedIn = True
-            print("You have logged in")
+        numUsrs = result[0][0]
+        if(numUsrs != 0):
+            pswrd = input("Please enter your password... ")
+            self.cursor.execute("SELECT Password FROM Users WHERE UserID =?", [userID])
+            result = self.cursor.fetchall()
+            corr = result[0][0]
+            if(corr == pswrd):
+                self.loggedIn = True
+                self.userID = userID
+                print("\nYou have logged in")
+            else:
+                print("\nThere was a problem logging you in. Try again")
         else:
-            print("There was a problem logging you in. Try again")
+            print("\nUsername not found. Try again")
+        return self.loggedIn
 
     #Logout function
     def logout(self):
+        self.userID = ""
         self.loggedIn = False
+        return self.loggedIn
 
     #Function for viewing account information
-    #Currently lists all UserIDs listed in database
+    #Information could be more organized
     def viewAccountInformation(self):
-        self.cursor.execute("SELECT UserID FROM Users")
-        result = self.cursor.fetchall()
-        for i in result:
-            print(i)
+        if(self.loggedIn):
+            self.cursor.execute("SELECT * FROM Users WHERE UserID =?", [self.userID])
+            result = self.cursor.fetchall()
+            for i in result:
+                print(i)
+        else:
+            print("\nTry logging in first")
 
     #Create Account function
-    #Problem: Check to see if userID is already in use
+    #Make sure to adjust when full user table is complete
     def createAccount(self):
         userID = input("Please enter your preferred userID...")
-        pswrd = input("Please enter your preferred password...")
-        name = input("Please enter your name...")
-        data = (userID, pswrd, name)
-        self.cursor.execute("INSERT INTO Users (UserID, Password, FirstName) VALUES (?, ?, ?)", data)
-        self.connection.commit()
-        print("Your account has been added")
+        self.cursor.execute("SELECT COUNT(UserID) FROM Users WHERE UserID =?", [userID])
+        result = self.cursor.fetchall()
+        numUsrs = result[0][0]
+        if(numUsrs == 0):
+            pswrd = input("Please enter your preferred password...")
+            name = input("Please enter your name...")
+            data = (userID, pswrd, name)
+            self.cursor.execute("INSERT INTO Users (UserID, Password, FirstName) VALUES (?, ?, ?)", data)
+            self.connection.commit()
+            print("\nYour account has been added")
+        else:
+            print("\nUserID already in use. Please try another")
 
 
     #Function for returning whether or not user is logged in
