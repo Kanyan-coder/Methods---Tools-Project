@@ -45,18 +45,24 @@ class User:
         return self.loggedIn
 
     #Function for viewing account information
-    #Information could be more organized
     def viewAccountInformation(self):
         if(self.loggedIn):
             self.cursor.execute("SELECT * FROM Users WHERE UserID =?", [self.userID])
             result = self.cursor.fetchall()
-            for i in result:
-                print(i)
+            print("UserID: ", result[0][0])
+            print("Email: ", result[0][1])
+            print("Password: ", result[0][2])
+            print("First Name: ", result[0][3])
+            print("Last Name: ", result[0][4])
+            print("Address: ", result[0][5])
+            print("City: ", result[0][6])
+            print("State: ", result[0][7])
+            print("Zipcode: ", result[0][8])
+            print("Payment: ", result[0][9])
         else:
             print("\nTry logging in first")
 
     #Create Account function
-    #Make sure to adjust when full user table is complete
     def createAccount(self):
         userID = input("Please enter your preferred userID...")
         self.cursor.execute("SELECT COUNT(UserID) FROM Users WHERE UserID =?", [userID])
@@ -64,9 +70,16 @@ class User:
         numUsrs = result[0][0]
         if(numUsrs == 0):
             pswrd = input("Please enter your preferred password...")
-            name = input("Please enter your name...")
-            data = (userID, pswrd, name)
-            self.cursor.execute("INSERT INTO Users (UserID, Password, FirstName) VALUES (?, ?, ?)", data)
+            email = input("Please enter your email...")
+            frstName = input("Please enter your first name...")
+            lstName = input("Please enter your last name...")
+            addr = input("Please enter your street address (ex: 123 Elm Rd)...")
+            city = input("Please enter the city you are from...")
+            state = input("Please enter the state you are from (ex: MS)...")
+            zipCde = input("Please enter the your zipcode...")
+            pymnt = input("Please enter your payment method (ex: Visa, Mastercard, American Express)...")
+            data = (userID, email, pswrd, frstName, lstName, addr, city, state, zipCde, pymnt)
+            self.cursor.execute("INSERT INTO Users (UserID, Email, Password, FirstName, LastName, Address, City, State, Zipcode, Payment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
             self.connection.commit()
             print("\nYour account has been added")
         else:
