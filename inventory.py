@@ -12,11 +12,19 @@ class Inventory:
         self.cursor.close()
         self.connection.close()
 
+
     def showInventory(self):
-        self.cursor.execute("SELECT * FROM {}".format(self.tableName))
+        self.cursor.execute("SELECT Name, Quantity, Price FROM {}".format(self.tableName))
         result = self.cursor.fetchall()
-        for Title in result:
-            print(Title)
+
+        if result:
+            print("{:<30} {:<10} {:<10}".format("Title", "Quantity", "Price"))
+            print("=" * 50)
+            for item in result:
+                title, quantity, price = item
+                print("{:<30} {:<10} ${:<10}".format(title, quantity, price))
+        else:
+            print("The inventory is empty.")
 
     def searchInventory(self):
         search_term = input("Enter a search term: ")
@@ -70,14 +78,61 @@ class Inventory:
             return result[0]
         else:
             return 0
+    
+    def getPrice(self, title):
+        self.cursor.execute("SELECT Price FROM {} WHERE Name = ?".format(self.tableName), (title,))
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            return None
+
     def getBook(self, title):
         current_quantity = self.getQuantity(title)
 
         if current_quantity > 0:
             self.remQuantity(title, 1)
-            self.cursor.execute("SELECT * FROM {} WHERE Name = ?".format(self.tableName), (title,))
-            book = self.cursor.fetchone()
-            return book
+            price = self.getPrice(title)
+
+            if price is not None:
+                print("Book '{}' obtained. Price: ${}".format(title, price))
+                self.cursor.execute("SELECT * FROM {} WHERE Name = ?".format(self.tableName), (title,))
+                book = self.cursor.fetchone()
+                return book, price
+            else:
+                print("Error: Price not found for book '{}'.".format(title))
+                return None
         else:
             print("Error: Book '{}' is out of stock.".format(title))
             return None
+def main():
+    inventory_sys = Inventory("Project.db", "Inventory")
+
+    while True:
+        print("\n===== Inventory Management Menu =====")
+        print("1. Show Inventory")
+        print("2. Add Book")
+        print("3. Remove Book")
+        print("4. Add Quantity")
+        print("5. Search Inventory")
+        print("6. Get Book Details with Price")
+        print("0. Exit")
+
+        choice = input("Enter your choice (0-6): ")
+        if choice == "0":
+            break
+        elif choice == "1":
+            inventory_sys.showInventory()
+        elif choice == "2":
+            inventory_sys.addBook()
+        elif choice == "3":
+            inventory_sys.remBook()
+        elif choice == "4":
+            inventory_sys.addQuantity()
+        elif choice == "5":
+            inventory_sys.searchInventory()
+        elif choice == "6":
+            book_title = input("Enter the title of the book to get details: ")
+            book_info = inventory_sys.getBook(book_title)
+if __name__ == "__main__":
+    main()
