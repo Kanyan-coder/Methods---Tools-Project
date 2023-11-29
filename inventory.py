@@ -57,19 +57,17 @@ class Inventory:
         self.connection.commit()
         print("Book removed from inventory.")
 
-    def addQuantity(self):
-        title = input("Enter the title of the book to add quantity: ")
-        quantity = int(input("Enter the quantity to add: "))
-        self.cursor.execute("UPDATE {} SET Quantity = Quantity + ? WHERE Name = ?".format(self.tableName), (quantity, title))
+    def addQuantity(self, isbn, quantity):
+        self.cursor.execute("UPDATE {} SET Quantity = Quantity + ? WHERE ISBN = ?".format(self.tableName), (quantity, isbn))
         self.connection.commit()
         print("Quantity added.")
 
-    def remQuantity(self, title, quantity):
-        self.cursor.execute("UPDATE {} SET Quantity = Quantity - ? WHERE Name = ?".format(self.tableName), (quantity, title))
+    def remQuantity(self, isbn, quantity):
+        self.cursor.execute("UPDATE {} SET Quantity = Quantity - ? WHERE ISBN = ?".format(self.tableName), (quantity, isbn))
         self.connection.commit()
 
-    def getQuantity(self, title):
-        self.cursor.execute("SELECT Quantity FROM {} WHERE Name = ?".format(self.tableName), (title,))
+    def getQuantity(self, isbn):
+        self.cursor.execute("SELECT Quantity FROM {} WHERE isbn = ?".format(self.tableName), (isbn,))
         result = self.cursor.fetchone()
         if result:
             return result[0]
@@ -84,31 +82,3 @@ class Inventory:
         else:
             return None
 
-    def getBook(self):
-        isbn = int(input("Enter the ISBN of the book to get: "))
-        quantity_requested = int(input("Enter the quantity you want to get: "))
-
-        self.cursor.execute("SELECT ISBN, Name, Quantity, Price FROM {} WHERE ISBN = ?".format(self.tableName), (isbn,))
-        result = self.cursor.fetchone()
-
-        if result:
-            isbn, title, current_quantity, price = result
-
-            if current_quantity >= quantity_requested:
-                total_price = price * quantity_requested
-
-                self.remQuantity(title, quantity_requested)
-
-                print("\nBook Details:")
-                print("ISBN: {}".format(isbn))
-                print("Title: {}".format(title))
-                print("Quantity: {}".format(quantity_requested))
-                print("Price per unit: ${}".format(price))
-                print("Total Price: ${}".format(total_price))
-                return isbn, title, quantity_requested, total_price
-            else:
-                print("Error: Not enough quantity in stock.")
-                return None
-        else:
-            print("Error: Book with ISBN {} not found.".format(isbn))
-            return None

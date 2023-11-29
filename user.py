@@ -21,6 +21,7 @@ class User:
     def login(self):
         userID = input("Please enter your userID... ")
         self.cursor.execute("SELECT COUNT(UserID) FROM Users WHERE UserID =?", [userID])
+        
         result = self.cursor.fetchall()
         numUsrs = result[0][0]
         if(numUsrs != 0):

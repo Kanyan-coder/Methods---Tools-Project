@@ -46,23 +46,37 @@ class Cart:
         else:
             
             print("\nItem was not found in the cart.\n")
-            
-
-    def addItem(self, isbn, title, quantity, price):
+    
+    def addToCart(self, userID, isbn, quantity_requested):
+        query = f"INSERT INTO {self.tableName} (userID, ISBN, Quantity) VALUES (?, ?, ?)"
+        values = (userID, isbn, quantity_requested)
+    
+        self.cursor.execute(query, values)
+        self.connection.commit()
+        print("Item(s) have been added to your cart")
       
-            
-        try:
-            
-            self.cursor.execute(
-                "INSERT INTO {} (ISBN, Name, Quantity, Price) VALUES (?, ?, ?, ?)".format(self.table_name), (isbn, title, quantity, price))
-            
-            print("Book added to the shopping cart.")
         
-        except Exception as e:
-            
-            print("Error adding book to the shopping cart:", str(e))
-
     def viewCart(self):
+     
+      self.cursor.execute("SELECT userID, ISBN, Quantity FROM '{}'".format(self.tableName))
+      result = self.cursor.fetchall()
+
+      if result:
+        
+        print("{:<15} {:<30} {:<10}".format("userID", "ISBN", "Quantity"))
+        print("=" * 60)
+        
+        for item in result:
+            
+            userID, ISBN, quantity = item
+            print("{:<15} {:<10} {:<10} ".format(userID, ISBN, quantity))
+            print("\n")
+            
+      else:
+        
+        print("The inventory is empty.")
+
+    def cartInfo(self):
         
         while(1):
              
@@ -80,16 +94,7 @@ class Cart:
 
             elif(choice == "1"):
             
-                if not self.cart:
-            
-                    print("Cart is empty.\n")
-            
-                else:
-            
-                    print("Shopping Cart Contents:")
-                    for ISBN, quantity in self.cart.items():
-                
-                        print(f"ISBN: {ISBN}, Quantity: {quantity}")
+               self.viewCart()
                         
             elif (choice == "2"):
                 
