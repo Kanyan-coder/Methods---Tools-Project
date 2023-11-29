@@ -46,21 +46,11 @@ class Cart:
         else:
             
             print("\nItem was not found in the cart.\n")
-            
-
-    def addItem(self, isbn, title, quantity, price):
-      
-            
-        try:
-            
-            self.cursor.execute(
-                "INSERT INTO {} (ISBN, Name, Quantity, Price) VALUES (?, ?, ?, ?)".format(self.table_name), (isbn, title, quantity, price))
-            
-            print("Book added to the shopping cart.")
-        
-        except Exception as e:
-            
-            print("Error adding book to the shopping cart:", str(e))
+    
+    def addToCart(self, userID, isbn, quantity_requested):
+        self.cursor.execute("INSERT INTO ? (UserID, ISBN, Quantity) VALUES (?, ?, ?, ?)", (self.table_name, userID, isbn, quantity_requested))
+        self.connection.commit()
+        print("Item(s) have been added to your cart")
 
     def viewCart(self):
         
