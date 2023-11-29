@@ -7,7 +7,7 @@ class Cart:
        
        self.databaseName = databaseName
        self.tableName = tableName
-       self.cart = {}
+       #self.cart = {}
        
        self.connection = sqlite3.connect(databaseName)
        self.cursor = self.connection.cursor()
@@ -48,7 +48,8 @@ class Cart:
             print("\nItem was not found in the cart.\n")
     
     def addToCart(self, userID, isbn, quantity_requested):
-        self.cursor.execute("INSERT INTO ? (UserID, ISBN, Quantity) VALUES (?, ?, ?, ?)", (self.table_name, userID, isbn, quantity_requested))
+        data = (userID, isbn, quantity_requested)
+        self.cursor.execute("INSERT INTO '{}' (UserID, ISBN, Quantity) VALUES (?, ?, ?)".format(self.tableName), data)
         self.connection.commit()
         print("Item(s) have been added to your cart")
 

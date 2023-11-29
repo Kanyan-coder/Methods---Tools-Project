@@ -31,7 +31,7 @@ def createAccount(user):
     user.createAccount()
 
 def viewInv(user, inv, cart):
-    while(1)
+    while(1):
         inv.showInventory()
         print("")
         print("")
@@ -52,7 +52,7 @@ def viewInv(user, inv, cart):
                 print("Cannot find book in stock")
 
             else:
-                while(1) 
+                while(1): 
                     if(qnt == 0):
                         break
 
@@ -64,6 +64,8 @@ def viewInv(user, inv, cart):
                     else:
                         print("Not enough in stock")
                         qnt = int(input("Enter desired quantity or 0 to go back: "))
+
+                print("")
             
         else:
             print("invalid choice. Try again.")
