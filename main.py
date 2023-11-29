@@ -1,10 +1,11 @@
 #main 
+from functools import cached_property
 import sqlite3
 import sys
 
 from inventory import *
 from user import *
-#from cart import *
+from shoppingCart import *
 
 try:
     connection = sqlite3.connect("Project.db")
@@ -18,10 +19,10 @@ except:
 
 cursor = connection.cursor()
 
-def login(user, inv):
+def login(user, inv, cart):
     user.login()
     if(user.getLoggedIn()):
-        menu(user, inv)
+        menu(user, inv, cart)
 
 def logout(user):
     user.logout()
@@ -33,8 +34,15 @@ def viewInv(inv):
     inv.showInventory()
 
 def searchInv(inv):
-    #inv.searchInventory()
+    inv.searchInventory()
     print("srch inv")
+    
+def viewCart(cart):
+    cart.viewCart()
+    
+def addItem(cart):
+    cart.addItem()    
+    
 
 def invInfo(inv):
     while(1):
@@ -53,17 +61,43 @@ def invInfo(inv):
         elif(opt == "1"):
             viewInv(inv)
             print("")
+            print("")
+            print("0- Go Back")
+            print("1- Buy Books\n")
+            
+            choice = input("What would you like to do?\n")
+
+            if(choice == "0"): 
+                break;
+            
+            #if user is buying a book
+            elif(choice == "1"):
+
+               inventory = Inventory("Project.db", "Inventory")
+               shopping_cart = Cart("Project.db", 'Shopping Cart')
+               book_details = inventory.getBook()
+               
+               if book_details:
+                    isbn, title, quantity, price = book_details
+                    shopping_cart.addItem(isbn, title, quantity, price)
+                    
+               inventory.conn.commit()
+               shopping_cart.conn.commit()
+                
+                   
+            else:
+                print("invalid choice. Try again.")
 
         #Search Inventory
         elif(opt == "2"):
-            searchInv(inv)
+            inv.searchInventory()
             print("")
 
         else:
             print("Invalid response. Try again\n")
 
 
-def menu(user, inv):
+def menu(user, inv, cart):
     while(1):
         print("Menu Options: \n")
         print("0- Logout")
@@ -90,8 +124,8 @@ def menu(user, inv):
 
         #Cart Information
         elif(opt == "3"):
-            #Adjust once cart class is added
-            print("")
+            cart.viewCart()
+            #print("")
 
         else:
             print("Invalid response. Try again\n")
@@ -105,6 +139,7 @@ def main():
 
     user = User("Project.db", "Users")
     inv = Inventory("Project.db", "Inventory")
+    cart = Cart("Project.db", "Shopping Cart")
     
     while(1):
         print("Menu Options: \n")
@@ -116,7 +151,7 @@ def main():
         
         #Login
         if(opt == "0"):
-            login(user, inv)
+            login(user, inv,cart)
             print("")
 
         #Create Account
