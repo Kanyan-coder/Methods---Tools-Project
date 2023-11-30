@@ -30,21 +30,56 @@ def logout(user):
 def createAccount(user):
     user.createAccount()
 
-def viewInv(inv):
-    inv.showInventory()
+def viewInv(user, inv, cart):
+    while(1):
+        inv.showInventory()
+        print("")
+        print("")
+        print("0- Go Back")
+        print("1- Add a Book to Your Cart\n")
+        
+        opt = input("What would you like to do?\n")
+
+        if(opt == "0"): 
+            break
+        
+        #if user is buying a book
+        elif(opt == "1"):
+            addItem(user, inv, cart)
+            
+        else:
+            print("invalid choice. Try again.")
+
 
 def searchInv(inv):
     inv.searchInventory()
-    print("srch inv")
     
-def viewCart(cart):
-    cart.viewCart()
     
-def addItem(cart):
-    cart.addItem()    
+def addItem(user, inv, cart):
+    isbn = int(input("Enter the ISBN of the book you'd like to add: "))
+    qnt = int(input("Enter desired quantity: "))
+            
+    if(inv.getQuantity(isbn) == 0):
+        print("Cannot find book in stock")
+
+    else:
+        while(1): 
+            if(qnt == 0):
+                break
+
+            elif(inv.getQuantity(isbn) >= qnt):
+                cart.addToCart(user.getUserID(), isbn, qnt)
+                inv.remQuantity(isbn, qnt)
+                break
+
+            else:
+                print("Not enough in stock")
+                qnt = int(input("Enter desired quantity or 0 to go back: "))
+
+        print("")
     
 
-def invInfo(inv):
+def invInfo(user, inv, cart):
     while(1):
         print("Menu Options: \n")
         print("0- Go Back")
@@ -59,35 +94,8 @@ def invInfo(inv):
 
         #View Inventory
         elif(opt == "1"):
-            viewInv(inv)
-            print("")
-            print("")
-            print("0- Go Back")
-            print("1- Buy Books\n")
+            viewInv(user, inv, cart)
             
-            choice = input("What would you like to do?\n")
-
-            if(choice == "0"): 
-                break;
-            
-            #if user is buying a book
-            elif(choice == "1"):
-
-               inventory = Inventory("Project.db", "Inventory")
-               shopping_cart = Cart("Project.db", 'Shopping Cart')
-               book_details = inventory.getBook()
-               
-               if book_details:
-                    isbn, title, quantity, price = book_details
-                    shopping_cart.addItem(isbn, title, quantity, price)
-                    
-               inventory.conn.commit()
-               shopping_cart.conn.commit()
-                
-                   
-            else:
-                print("invalid choice. Try again.")
-
         #Search Inventory
         elif(opt == "2"):
             inv.searchInventory()
@@ -95,6 +103,41 @@ def invInfo(inv):
 
         else:
             print("Invalid response. Try again\n")
+            
+def cartInfo(user, inv, cart):
+        
+        while(1):
+             
+            print("Menu Options: \n")
+            print("0- Back")
+            print("1- View Cart")
+            print("2- Add To Cart")
+            print("3- Remove From Cart")
+            print("4- Check Out\n")
+
+            choice = input("What would you like to do?\n")
+
+            if (choice == "0"):
+                
+                break
+
+            elif(choice == "1"):
+            
+               cart.viewCart(user.getUserID())
+                        
+            elif (choice == "2"):
+                
+                addItem(user, inv, cart)
+                
+            elif (choice == "3"):
+                
+                cart.removeItem(inv, user.getUserID())
+
+            elif (choice == "4"):
+                cart.checkOut(inv, user.getUserID())
+                
+            else:
+                print("Your choice was not an option. Try again.")
 
 
 def menu(user, inv, cart):
@@ -119,12 +162,12 @@ def menu(user, inv, cart):
 
         #Inventory Information
         elif(opt == "2"):
-            invInfo(inv)
+            invInfo(user, inv, cart)
             print("")
 
         #Cart Information
         elif(opt == "3"):
-            cart.viewCart()
+            cartInfo(user, inv, cart)
             #print("")
 
         else:
